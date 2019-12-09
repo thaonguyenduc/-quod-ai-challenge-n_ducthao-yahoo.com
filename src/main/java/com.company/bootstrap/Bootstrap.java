@@ -16,10 +16,8 @@ import static com.company.utils.ValidationUtils.assertValidDate;
 
 public class Bootstrap {
     public static void main(String[] args) throws Exception {
-  /*      String from = args[0];
-        String to = args[1];*/
-        String from = "2019-08-01T00:00:00Z";
-        String to = "2019-08-02T00:00:00Z";
+        String from = args[0];
+        String to = args[1];
         System.out.printf("Process request: %s - %s \n", from, to);
         assertValidDate(from);
         assertValidDate(to);
@@ -51,7 +49,7 @@ public class Bootstrap {
                 .pipe(new CSVExportStep());
 
         File csvFile = task.execute(executionContext);
-        
+
         long end = System.currentTimeMillis();
         System.out.println("Main Execution Time: " + (end - start));
         System.out.println("Main Done. ");
