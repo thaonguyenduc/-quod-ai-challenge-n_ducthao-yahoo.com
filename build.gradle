@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+group 'org.quodAI.challenge'
+version '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.1'
+    compile group: 'com.ning', name: 'async-http-client', version: '1.9.40'
+    //to uncompress file.
+    compile group: 'com.ning', name: 'compress-lzf', version: '1.0.4'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
+    compile group: 'com.opencsv', name: 'opencsv', version: '4.6'
+}
+
+mainClassName =  'com.company.bootstrap.Bootstrap'
