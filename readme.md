@@ -19,11 +19,10 @@ To make the application run faster, I have applied some strategies listed below:
 
   - Make asynchronous http request call.
   - Decompress zip file while downloading.
+  - Analyzed data will be serialized at the collector data step and then de-serialize at the step of calculation health repos metrics.
   - Use multi-thread and parallel stream for downloading, analyzing and computing data.
   
-Although, the application might be crashed for large request processing due to out of memory error. 
-Technically, in my opinion this issue can be solved as at the step of collecting data, required data to be analyzed need to serialized 
-instead of loading into memory and will be de-serialized at the step of analyzing data. We can use protocol buffers for this.
+The performance is still to improve if we use Protobuff to serialize and de-serialize instead of Json.
 
  ### Run.
  Run by execute "gradlew run" command, eg:
