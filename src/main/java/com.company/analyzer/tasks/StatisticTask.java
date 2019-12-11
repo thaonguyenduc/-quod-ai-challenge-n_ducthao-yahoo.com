@@ -34,9 +34,9 @@ public class StatisticTask implements Callable<List<HealthRepo>> {
         double ratioCommitPerDeveloper = 0.0;
         if (!pushEvents.isEmpty()) {
             //Average number of commits (push) per day (to any branch)
-            averageCommitPerDay = (Double) DoFunction.apply(pushEvents, new AverageCommitsPerDay());
+            averageCommitPerDay = (Double) DoFunction.transform(pushEvents, new AverageCommitsPerDay());
             //Ratio Commit Per Developer
-            ratioCommitPerDeveloper = (Double) DoFunction.apply(pushEvents, new RatioCommitPerDeveloper());
+            ratioCommitPerDeveloper = (Double) DoFunction.transform(pushEvents, new RatioCommitPerDeveloper());
         }
         //Average time that an issue remains opened
         double averageIssueRemainedOpen =
@@ -63,7 +63,7 @@ public class StatisticTask implements Callable<List<HealthRepo>> {
     private double calculateAverageIssueRemainedOpen(Collection<GitEvent> issueEvents) throws Exception {
         double averageIssueRemainedOpen = 0.0;
         if (!issueEvents.isEmpty()) {
-            averageIssueRemainedOpen = (Double) DoFunction.apply(issueEvents, new AverageIssueRemainedOpen());
+            averageIssueRemainedOpen = (Double) DoFunction.transform(issueEvents, new AverageIssueRemainedOpen());
         }
         return averageIssueRemainedOpen;
     }
@@ -72,7 +72,7 @@ public class StatisticTask implements Callable<List<HealthRepo>> {
 
         double averagePullRequestMerged = 0.0;
         if (!prsMerged.isEmpty()) {
-            averagePullRequestMerged = (Double) DoFunction.apply(prsMerged, new AverageTimePullRequestMerged());
+            averagePullRequestMerged = (Double) DoFunction.transform(prsMerged, new AverageTimePullRequestMerged());
         }
         return averagePullRequestMerged;
     }

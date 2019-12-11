@@ -19,9 +19,11 @@ public class Bootstrap {
         String from = args[0];
         String to = args[1];
         System.out.printf("Process request: %s - %s \n", from, to);
+
         assertValidDate(from);
         assertValidDate(to);
         assertFromDateLessThanToDate(from, to);
+
         run(from, to);
         System.exit(0);
     }

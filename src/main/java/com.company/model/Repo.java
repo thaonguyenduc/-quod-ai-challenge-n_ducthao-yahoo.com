@@ -42,11 +42,4 @@ public class Repo implements Identifiable {
         return Objects.hashCode(id, name);
     }
 
-    @Override
-    public String toString() {
-        return "Repo{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
-    }
 }

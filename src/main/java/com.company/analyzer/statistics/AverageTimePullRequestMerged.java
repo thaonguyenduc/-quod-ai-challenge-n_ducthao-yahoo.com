@@ -31,18 +31,25 @@ public class AverageTimePullRequestMerged implements Execute<List<GitEvent>> {
             }
 
             ListMultimap<Long, Long> prsMerged =
-                    (ListMultimap<Long, Long>) DoFunction.apply(pullRequestMerged, (Execute<List<GitEvent>>) gitEvents -> {
+                    (ListMultimap<Long, Long>) DoFunction.transform(pullRequestMerged, (Execute<List<GitEvent>>) gitEvents -> {
                         ListMultimap<Long, Long> prMerged = MultimapBuilder.treeKeys().arrayListValues().build();
-                        gitEvents.stream().forEach(gitEvent -> {
+                        gitEvents.forEach(gitEvent -> {
                             PullRequest pullRequest = gitEvent.getPullRequest();
                             String createdAt = pullRequest.getCreatedAt();
                             String mergedAt = pullRequest.getMergedAt();
                             Long id = pullRequest.getId();
                             long timeToMerge = DateTimeUtils.timeRange(createdAt, mergedAt);
-                            prMerged.put(id, timeToMerge);
+                            if (timeToMerge!=0){
+                                prMerged.put(id, timeToMerge);
+                            }
+
                         });
                         return prMerged;
                     });
+
+            if (prsMerged.isEmpty()) {
+                return 0.0;
+            }
 
             Long totalTimeToMerge = prsMerged.values().stream().reduce(0l, Long::sum);
             int totalMerged = prsMerged.keySet().size();

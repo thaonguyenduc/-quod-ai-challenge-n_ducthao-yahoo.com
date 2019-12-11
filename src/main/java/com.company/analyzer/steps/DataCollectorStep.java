@@ -1,45 +1,43 @@
 package com.company.analyzer.steps;
 
 import com.company.analyzer.steps.exception.DataCollectorStepException;
-import com.company.model.GitEvent;
-import com.company.model.Repo;
 import com.company.utils.DownloadUtils;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static com.company.utils.Utils.readFile;
+import static com.company.utils.JsonUtils.parse;
 
 /**
  * Collect data.
  */
-public class DataCollectorStep implements Step<List<String>, ListMultimap<Repo, GitEvent>> {
+public class DataCollectorStep implements Step<List<String>, List<File>> {
 
     @Override
-    public ListMultimap<Repo, GitEvent> execute(List<String> urls) throws DataCollectorStepException {
+    public List<File> execute(List<String> urls) throws DataCollectorStepException {
         try {
             long start = System.currentTimeMillis();
             System.out.println("Data Collector Start: ");
             System.out.println("Running...");
             System.out.println("Number of request to proceed: " + urls.size());
             CountDownLatch latch = new CountDownLatch(urls.size());
-            ListMultimap<Repo, GitEvent> output = Multimaps.synchronizedListMultimap(ArrayListMultimap.create());
+            List<File> files = Collections.synchronizedList(new ArrayList<>());
             for (String url : urls) {
                 final File file = DownloadUtils.download(url);
+                files.add(file);
                 Thread t = new Thread(() -> {
                     try {
-                        output.putAll(readFile(file));
+                        parse(file);
                         latch.countDown();
                     } catch (Throwable e) {
                         latch.countDown();
                         e.printStackTrace();
                     } finally {
-                        System.out.printf("%s is removed. \n ", file.getName());
+                        System.out.printf("%s is written. \n ", file.getName());
                         file.deleteOnExit();
                     }
                 }, "File Parser");
@@ -54,7 +52,7 @@ public class DataCollectorStep implements Step<List<String>, ListMultimap<Repo, 
             long end = System.currentTimeMillis();
             System.out.println("Data collector done.");
             System.out.println("Execution time: " + (end - start));
-            return output;
+            return files;
         } catch (IOException e) {
             throw new DataCollectorStepException("Error is happened while running data collector", e);
         }

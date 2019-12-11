@@ -11,11 +11,12 @@ public class PullRequest implements Identifiable {
     private boolean merged;
     private String createdAt;
     private String mergedAt;
+    private int number;
 
-    public static PullRequest createPullRequest(Map<String, Object> pullRequestNode, String action) {
+    public static PullRequest deserialize(Map<String, Object> pullRequestNode, String action, int number) {
         PullRequest pullRequest = new PullRequest();
         pullRequest.setAction(action);
-        pullRequest.setId(Long.valueOf((Integer) pullRequestNode.get("id")));
+        pullRequest.setId(Long.valueOf(pullRequestNode.get("id") + ""));
         pullRequest.setCreatedAt((String) pullRequestNode.get("created_at"));
         if (pullRequestNode.get("merged_at") != null) {
             pullRequest.setMergedAt((String) pullRequestNode.get("merged_at"));
@@ -25,8 +26,30 @@ public class PullRequest implements Identifiable {
             pullRequest.setMerged((Boolean) pullRequestNode.get("merged"));
         }
 
+        pullRequest.setNumber(number);
         return pullRequest;
     }
+
+    public static PullRequest deserialize(Map<String, Object> pullRequestNode) {
+        PullRequest pullRequest = new PullRequest();
+        pullRequest.setAction((String) pullRequestNode.get("action"));
+        pullRequest.setId(Long.valueOf(pullRequestNode.get("id") + ""));
+        pullRequest.setCreatedAt((String) pullRequestNode.get("createdAt"));
+        if (pullRequestNode.get("mergedAt") != null) {
+            pullRequest.setMergedAt((String) pullRequestNode.get("mergedAt"));
+        }
+
+        if (pullRequestNode.get("merged") != null) {
+            pullRequest.setMerged((Boolean) pullRequestNode.get("merged"));
+        }
+
+        if (pullRequestNode.get("number") != null) {
+            pullRequest.setNumber((Integer) pullRequestNode.get("number"));
+        }
+
+        return pullRequest;
+    }
+
 
     @Override
     public Long getId() {
@@ -72,14 +95,12 @@ public class PullRequest implements Identifiable {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "PullRequest{" +
-                "id=" + id +
-                ", action='" + action + '\'' +
-                ", merged=" + merged +
-                ", createdAt='" + createdAt + '\'' +
-                ", mergedAt='" + mergedAt + '\'' +
-                '}';
+    public int getNumber() {
+        return number;
+    }
+
+    public PullRequest setNumber(int number) {
+        this.number = number;
+        return this;
     }
 }

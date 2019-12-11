@@ -20,9 +20,9 @@ public class AverageCommitsPerDay implements Execute<List<GitEvent>> {
     public Double apply(List<GitEvent> events) throws AverageCommitPerDayException {
         try {
             ListMultimap<LocalDate, Integer> dayAndCommit =
-                    (ListMultimap<LocalDate, Integer>) DoFunction.apply(events, (Execute<List<GitEvent>>) gitEvents -> {
+                    (ListMultimap<LocalDate, Integer>) DoFunction.transform(events, (Execute<List<GitEvent>>) gitEvents -> {
                         ListMultimap<LocalDate, Integer> mapDayCommit = MultimapBuilder.treeKeys().arrayListValues().build();
-                        gitEvents.stream().forEach(gitEvent -> {
+                        gitEvents.forEach(gitEvent -> {
                             String createdAt = gitEvent.getCreatedAt();
                             Integer numberOfCommit = gitEvent.getPush().getSize();
                             mapDayCommit.put(DateTimeUtils.toDate(createdAt), numberOfCommit);

@@ -12,19 +12,36 @@ public class Issue implements Identifiable {
     private String closeAt;
     private String action;
 
-    public static Issue createIssue(Map<String, Object> issueNode) {
+    public static Issue createIssue(Map<String, Object> issueNode, String action) {
         Issue issue = new Issue();
-        issue.setId(Long.valueOf((Integer) issueNode.get("id")));
+        issue.setId(Long.valueOf(issueNode.get("id") + ""));
         issue.setState((String) issueNode.get("state"));
         issue.setCreatedAt((String) issueNode.get("created_at"));
         issue.setCloseAt(((String) issueNode.get("closed_at")));
-        issue.setAction(((String) issueNode.get("action")));
+        issue.setAction(action);
+        return issue;
+    }
+
+    public static Issue deserialize(Map<String, Object> issueNode) {
+        Issue issue = new Issue();
+        issue.setState((String) issueNode.get("state"));
+        issue.setId(Long.valueOf(issueNode.get("id") + ""));
+        issue.setCreatedAt((String) issueNode.get("createdAt"));
+        issue.setCloseAt(((String) issueNode.get("closedAt")));
+
+        if (issueNode.get("closedAt!") != null) {
+            issue.setCreatedAt((String) issueNode.get("closedAt"));
+        }
+
+        if (issueNode.get("action") != null) {
+            issue.setAction(((String) issueNode.get("action")));
+        }
         return issue;
     }
 
     @Override
     public Long getId() {
-        return null;
+        return id;
     }
 
     public Issue setId(Long id) {
@@ -69,14 +86,4 @@ public class Issue implements Identifiable {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "Issue{" +
-                "id=" + id +
-                ", state='" + state + '\'' +
-                ", createdAt='" + createdAt + '\'' +
-                ", closeAt='" + closeAt + '\'' +
-                ", action='" + action + '\'' +
-                '}';
-    }
 }

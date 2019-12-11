@@ -28,6 +28,8 @@ public class DownloadUtils {
                 .setReadTimeout(READ_TIMEOUT)
                 .setMaxConnections(MAX_CONNECTIONS)
                 .setMaxConnectionsPerHost(MAX_CONNECTIONS_PER_HOST)
+                .setConnectTimeout(60 * 1000 * 60)
+                .setRequestTimeout(60 * 1000 * 60)
                 .build();
     }
 

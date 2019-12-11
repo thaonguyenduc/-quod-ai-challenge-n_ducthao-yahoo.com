@@ -7,6 +7,7 @@ import com.company.model.HealthRepo;
 import com.company.model.Repo;
 import com.google.common.collect.ListMultimap;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,12 +15,15 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-public class HealthRepoMeasureStep implements Step<ListMultimap<Repo, GitEvent>, List<HealthRepo>> {
+import static com.company.utils.JsonUtils.deserializeFiles;
+
+public class HealthRepoMeasureStep implements Step<List<File>, List<HealthRepo>> {
 
     @Override
-    public List<HealthRepo> execute(ListMultimap<Repo, GitEvent> mapGitEvents) throws HealthRepoMeasureException {
+    public List<HealthRepo> execute(List<File> files) throws HealthRepoMeasureException {
         try {
             long start = System.currentTimeMillis();
+            ListMultimap<Repo, GitEvent> mapGitEvents = deserializeFiles(files);
             System.out.println("Health Repo Measure Start: ");
             System.out.println("Number of repo: " + mapGitEvents.keySet().size());
             System.out.println("Number of row: " + mapGitEvents.values().size());

@@ -9,6 +9,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.MultimapBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Calculates ratio commit per developer.
@@ -17,20 +18,14 @@ public class RatioCommitPerDeveloper implements Execute<List<GitEvent>> {
 
     @Override
     public Double apply(List<GitEvent> pushEvents) throws RatioCommitPerDeveloperException {
-        ListMultimap<String, Integer> mapCommitPerDeveloper = null;
+        ListMultimap<String, Integer> mapCommitPerDeveloper;
         try {
-            mapCommitPerDeveloper = (ListMultimap<String, Integer>) DoFunction.apply(pushEvents, (Execute<List<GitEvent>>) gitEvents -> {
+            mapCommitPerDeveloper = (ListMultimap<String, Integer>) DoFunction.transform(pushEvents, (Execute<List<GitEvent>>) gitEvents -> {
                 ListMultimap<String, Integer> totalCommitPerDeveloper = MultimapBuilder.treeKeys().arrayListValues().build();
-                gitEvents.stream().forEach(gitEvent -> {
+                gitEvents.forEach(gitEvent -> {
                     Push push = gitEvent.getPush();
-                    //commit per event
-                    ListMultimap<String, Integer> commitPerDeveloper = push.getCommitPerDeveloper();
-                    if (commitPerDeveloper != null) {
-                        commitPerDeveloper.asMap().forEach((developer, commit) -> {
-                            int commitPerEvent = commit.size();
-                            totalCommitPerDeveloper.put(developer, commitPerEvent);
-                        });
-                    }
+                    Map<String, Integer> commitPerDeveloper = push.getMapUserCommit();
+                    commitPerDeveloper.forEach(totalCommitPerDeveloper::put);
                 });
                 return totalCommitPerDeveloper;
             });

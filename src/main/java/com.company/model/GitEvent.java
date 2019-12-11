@@ -11,8 +11,11 @@ public class GitEvent implements Identifiable {
     private Long id;
     private String type;
     private Repo repo;
+    @JsonProperty("issue")
     private Issue issue;
+    @JsonProperty("pullRequest")
     private PullRequest pullRequest;
+    @JsonProperty("push")
     private Push push;
     @JsonProperty("created_at")
     private String createdAt;
@@ -76,20 +79,51 @@ public class GitEvent implements Identifiable {
         //Issue
         Map<String, Object> issueNode = (Map<String, Object>) payload.get("issue");
         if (issueNode != null) {
-            this.issue = Issue.createIssue(issueNode);
+            this.issue = Issue.createIssue(issueNode, (String) payload.get("action"));
         }
         //PullRequest
         Map<String, Object> pullRequestNode = (Map<String, Object>) payload.get("pull_request");
 
         if (pullRequestNode != null) {
-            if (payload.get("action") == null) {
-                System.out.println(payload);
+            int number = 0;
+            if (payload.get("number") != null) {
+                number = (int) payload.get("number");
             }
-            this.pullRequest = PullRequest.createPullRequest(pullRequestNode, (String) payload.get("action"));
+            this.pullRequest = PullRequest.deserialize(pullRequestNode, (String) payload.get("action"), number);
         }
         //Push
         if ("PushEvent".equals(this.type)) {
             this.push = Push.createPush(payload);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @JsonProperty("push")
+    private void deserializePushEvent(Map<String, Object> pushNode) {
+        //Push
+        if (pushNode != null) {
+            this.push = Push.deserialize(pushNode);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @JsonProperty("pullRequest")
+    private void deserializePullRequestEvent(Map<String, Object> pullRequestNode) {
+
+        if (pullRequestNode != null) {
+            if (pullRequestNode.get("action") == null) {
+                System.out.println(pullRequestNode);
+            }
+            this.pullRequest = PullRequest.deserialize(pullRequestNode);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @JsonProperty("issue")
+    private void deserializeIssueEvent(Map<String, Object> issueNode) {
+        //Issue
+        if (issueNode != null) {
+            this.issue = Issue.deserialize(issueNode);
         }
     }
 
@@ -102,20 +136,4 @@ public class GitEvent implements Identifiable {
         return this;
     }
 
-    public Long getRepositoryId() {
-        return this.getRepo().getId();
-    }
-
-    @Override
-    public String toString() {
-        return "GitEvent{" +
-                "id=" + id +
-                ", type='" + type + '\'' +
-                ", repo=" + repo +
-                ", issue=" + issue +
-                ", pullRequest=" + pullRequest +
-                ", push=" + push +
-                ", createdAt='" + createdAt + '\'' +
-                '}';
-    }
 }
