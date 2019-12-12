@@ -46,7 +46,6 @@ public class Push implements Identifiable {
         Push push = new Push();
         push.setId(Long.valueOf(node.get("id") + ""));
         push.setSize((Integer) node.get("size"));
-        node.get("mapUserCommit");
         push.getMapUserCommit().putAll((Map<String, Integer>) node.get("mapUserCommit"));
         return push;
     }

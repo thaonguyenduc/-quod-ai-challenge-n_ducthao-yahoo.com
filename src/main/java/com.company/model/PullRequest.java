@@ -13,7 +13,7 @@ public class PullRequest implements Identifiable {
     private String mergedAt;
     private int number;
 
-    public static PullRequest deserialize(Map<String, Object> pullRequestNode, String action, int number) {
+    public static PullRequest createPullRequest(Map<String, Object> pullRequestNode, String action, int number) {
         PullRequest pullRequest = new PullRequest();
         pullRequest.setAction(action);
         pullRequest.setId(Long.valueOf(pullRequestNode.get("id") + ""));

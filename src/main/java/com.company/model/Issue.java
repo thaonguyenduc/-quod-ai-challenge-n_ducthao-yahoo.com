@@ -27,7 +27,6 @@ public class Issue implements Identifiable {
         issue.setState((String) issueNode.get("state"));
         issue.setId(Long.valueOf(issueNode.get("id") + ""));
         issue.setCreatedAt((String) issueNode.get("createdAt"));
-        issue.setCloseAt(((String) issueNode.get("closedAt")));
 
         if (issueNode.get("closedAt!") != null) {
             issue.setCreatedAt((String) issueNode.get("closedAt"));

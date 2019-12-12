@@ -89,7 +89,7 @@ public class GitEvent implements Identifiable {
             if (payload.get("number") != null) {
                 number = (int) payload.get("number");
             }
-            this.pullRequest = PullRequest.deserialize(pullRequestNode, (String) payload.get("action"), number);
+            this.pullRequest = PullRequest.createPullRequest(pullRequestNode, (String) payload.get("action"), number);
         }
         //Push
         if ("PushEvent".equals(this.type)) {
@@ -111,9 +111,6 @@ public class GitEvent implements Identifiable {
     private void deserializePullRequestEvent(Map<String, Object> pullRequestNode) {
 
         if (pullRequestNode != null) {
-            if (pullRequestNode.get("action") == null) {
-                System.out.println(pullRequestNode);
-            }
             this.pullRequest = PullRequest.deserialize(pullRequestNode);
         }
     }
