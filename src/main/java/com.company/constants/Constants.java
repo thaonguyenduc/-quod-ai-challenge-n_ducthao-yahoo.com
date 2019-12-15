@@ -10,4 +10,8 @@ public class Constants {
     public static final String CSV_EXTENSION = ".csv";
     public static final double ONE_DAY = 1000 * 60 * 60 * 24;
     public static final String CLOSED_STATE = "closed";
+    public static final String RATIO_COMMIT_PER_DEVELOPER = "Ratio Commit Per Developer";
+    public static final String AVERAGE_COMMIT_PER_DAY = "Average Commit Per Day";
+    public static final String AVERAGE_ISSUE_REMAINED_OPEN = "Average Issue Remained Open";
+    public static final String AVERAGE_PULL_REQUEST_MERGED = "Average Pull Request Merged";
 }

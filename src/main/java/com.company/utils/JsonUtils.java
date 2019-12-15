@@ -1,6 +1,6 @@
 package com.company.utils;
 
-import com.company.constants.Constants;
+import com.company.core.IntegrationLocatorService;
 import com.company.model.GitEvent;
 import com.company.model.Repo;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,10 +28,6 @@ public class JsonUtils {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public static List<String> supportEventTypes() {
-        return Arrays.asList(Constants.PUSH_EVENT, Constants.ISSUES_EVENT, Constants.PULL_REQUEST_EVENT);
-    }
-
     public static void parse(File file) throws IOException {
         List<GitEvent> gitEvents = Collections.synchronizedList(new ArrayList<>());
         JsonFactory factory = new JsonFactory();
@@ -40,7 +35,11 @@ public class JsonUtils {
             stream.parallel().forEach(s -> {
                 try {
                     GitEvent ge = bindToGitEvent(factory, s);
-                    if (supportEventTypes().contains(ge.getType())) {
+                    String eventType = ge.getType();
+                    boolean isValidEvent = IntegrationLocatorService
+                            .getIntegrations()
+                            .stream().anyMatch(gei -> gei.assertSupportEventType(eventType));
+                    if (isValidEvent) {
                         gitEvents.add(ge);
                     }
                 } catch (IOException e) {

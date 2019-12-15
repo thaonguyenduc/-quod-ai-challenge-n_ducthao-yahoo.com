@@ -1,11 +1,8 @@
 package com.company.analyzer.tasks;
 
-import com.company.analyzer.DoFunction;
-import com.company.analyzer.statistics.AverageCommitsPerDay;
-import com.company.analyzer.statistics.AverageIssueRemainedOpen;
-import com.company.analyzer.statistics.AverageTimePullRequestMerged;
-import com.company.analyzer.statistics.RatioCommitPerDeveloper;
 import com.company.constants.Constants;
+import com.company.core.StatisticIntegration;
+import com.company.core.IntegrationLocatorService;
 import com.company.model.GitEvent;
 import com.company.model.HealthRepo;
 import com.company.model.Repo;
@@ -26,58 +23,43 @@ public class StatisticTask implements Callable<List<HealthRepo>> {
 
     @Override
     public List<HealthRepo> call() throws Exception {
-        List<HealthRepo> healthRepos = Collections.synchronizedList(new ArrayList<>());
+
         Map<String, List<GitEvent>> mapEventGitEvent =
                 gitEvents.stream().collect(Collectors.groupingBy(GitEvent::getType, Collectors.toList()));
-        List<GitEvent> pushEvents = getByEventType(mapEventGitEvent, Constants.PUSH_EVENT);
-        double averageCommitPerDay = 0;
-        double ratioCommitPerDeveloper = 0.0;
-        if (!pushEvents.isEmpty()) {
-            //Average number of commits (push) per day (to any branch)
-            averageCommitPerDay = (Double) DoFunction.transform(pushEvents, new AverageCommitsPerDay());
-            //Ratio Commit Per Developer
-            ratioCommitPerDeveloper = (Double) DoFunction.transform(pushEvents, new RatioCommitPerDeveloper());
+
+        for (StatisticIntegration statisticIntegration: IntegrationLocatorService.getIntegrations()){
+            statisticIntegration.execute(mapEventGitEvent);
         }
-        //Average time that an issue remains opened
-        double averageIssueRemainedOpen =
-                calculateAverageIssueRemainedOpen(getByEventType(mapEventGitEvent, Constants.ISSUES_EVENT));
-        //3.Average time for a pull request to get merged
-        double averagePullRequestMerged =
-                calculateAveragePullRequestMerged(getByEventType(mapEventGitEvent, Constants.PULL_REQUEST_EVENT));
+
+        double averageCommitPerDay = (Double) IntegrationLocatorService.
+                getValueHolder(Constants.AVERAGE_COMMIT_PER_DAY).getValue();
+
+        double ratioCommitPerDeveloper  = (Double) IntegrationLocatorService.
+                getValueHolder(Constants.RATIO_COMMIT_PER_DEVELOPER).getValue();
+
+        double averageIssueRemainedOpen = (Double) IntegrationLocatorService.
+                getValueHolder(Constants.AVERAGE_PULL_REQUEST_MERGED).getValue();
+
+        double averagePullRequestMerged = (Double) IntegrationLocatorService.
+                getValueHolder(Constants.AVERAGE_ISSUE_REMAINED_OPEN).getValue();
+
 
         double healthScore = MathUtils.sum(averageCommitPerDay,
                 averageIssueRemainedOpen,
                 averagePullRequestMerged,
                 ratioCommitPerDeveloper);
         String[] orgRepo = repo.getName().split("/");
+
+        List<HealthRepo> healthRepos = new ArrayList<>();
+
         HealthRepo healthRepo = HealthRepo.create(averageCommitPerDay,
                 ratioCommitPerDeveloper,
                 averageIssueRemainedOpen,
                 averagePullRequestMerged,
                 healthScore,
                 orgRepo);
+
         healthRepos.add(healthRepo);
         return healthRepos;
-    }
-
-    private double calculateAverageIssueRemainedOpen(Collection<GitEvent> issueEvents) throws Exception {
-        double averageIssueRemainedOpen = 0.0;
-        if (!issueEvents.isEmpty()) {
-            averageIssueRemainedOpen = (Double) DoFunction.transform(issueEvents, new AverageIssueRemainedOpen());
-        }
-        return averageIssueRemainedOpen;
-    }
-
-    private double calculateAveragePullRequestMerged(Collection<GitEvent> prsMerged) throws Exception {
-
-        double averagePullRequestMerged = 0.0;
-        if (!prsMerged.isEmpty()) {
-            averagePullRequestMerged = (Double) DoFunction.transform(prsMerged, new AverageTimePullRequestMerged());
-        }
-        return averagePullRequestMerged;
-    }
-
-    private List<GitEvent> getByEventType(Map<String, List<GitEvent>> mapEventGitEvent, String eventType) {
-        return Optional.ofNullable(mapEventGitEvent.get(eventType)).orElse(Collections.EMPTY_LIST);
     }
 }

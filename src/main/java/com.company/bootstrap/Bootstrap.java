@@ -1,10 +1,15 @@
 package com.company.bootstrap;
 
-import com.company.analyzer.ExecutionContext;
+import com.company.analyzer.integrations.AverageCommitPerDayIntegration;
+import com.company.analyzer.integrations.AverageIssueRemainedOpenIntegration;
+import com.company.analyzer.integrations.AveragePullRequestMergeIntegration;
+import com.company.analyzer.integrations.RatioCommitPerDeveloperIntegration;
+import com.company.core.ExecutionContext;
 import com.company.analyzer.steps.DataCollectorStep;
 import com.company.analyzer.steps.HealthRepoMeasureStep;
 import com.company.analyzer.steps.Step;
 import com.company.analyzer.steps.export.CSVExportStep;
+import com.company.core.*;
 import com.company.utils.DateTimeUtils;
 import com.company.utils.UrlUtils;
 
@@ -18,14 +23,27 @@ public class Bootstrap {
     public static void main(String[] args) throws Exception {
         String from = args[0];
         String to = args[1];
+
         System.out.printf("Process request: %s - %s \n", from, to);
 
         assertValidDate(from);
         assertValidDate(to);
         assertFromDateLessThanToDate(from, to);
 
+        configure();
+
         run(from, to);
         System.exit(0);
+    }
+
+    /**
+     * Configure statistic integrations.
+     */
+    private static void configure() {
+        IntegrationLocatorService.load(new AverageCommitPerDayIntegration(),
+                new RatioCommitPerDeveloperIntegration(),
+                new AverageIssueRemainedOpenIntegration(),
+                new AveragePullRequestMergeIntegration());
     }
 
     /**

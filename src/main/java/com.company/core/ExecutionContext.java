@@ -1,4 +1,4 @@
-package com.company.analyzer;
+package com.company.core;
 
 import java.util.ArrayList;
 import java.util.List;

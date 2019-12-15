@@ -1,8 +1,6 @@
 package com.company.analyzer.statistics;
 
-import com.company.analyzer.DoFunction;
-import com.company.analyzer.Execute;
-import com.company.analyzer.statistics.exception.RatioCommitPerDeveloperException;
+import com.company.core.Execute;
 import com.company.model.GitEvent;
 import com.company.model.Push;
 import com.google.common.collect.ListMultimap;
@@ -14,24 +12,21 @@ import java.util.Map;
 /**
  * Calculates ratio commit per developer.
  */
-public class RatioCommitPerDeveloper implements Execute<List<GitEvent>> {
+public class RatioCommitPerDeveloper implements Execute<Double> {
 
     @Override
-    public Double apply(List<GitEvent> pushEvents) throws RatioCommitPerDeveloperException {
-        ListMultimap<String, Integer> mapCommitPerDeveloper;
-        try {
-            mapCommitPerDeveloper = (ListMultimap<String, Integer>) DoFunction.transform(pushEvents, (Execute<List<GitEvent>>) gitEvents -> {
-                ListMultimap<String, Integer> totalCommitPerDeveloper = MultimapBuilder.treeKeys().arrayListValues().build();
-                gitEvents.forEach(gitEvent -> {
-                    Push push = gitEvent.getPush();
-                    Map<String, Integer> commitPerDeveloper = push.getMapUserCommit();
-                    commitPerDeveloper.forEach(totalCommitPerDeveloper::put);
-                });
-                return totalCommitPerDeveloper;
-            });
-        } catch (Exception e) {
-            throw new RatioCommitPerDeveloperException("An error is happened while calculating ratio commit", e);
+    public Double calculate(List<GitEvent> gitEvents) {
+        if (gitEvents.isEmpty()){
+            return 0.0;
         }
+
+        ListMultimap<String, Integer> mapCommitPerDeveloper = MultimapBuilder.treeKeys().arrayListValues().build();
+        gitEvents.forEach(gitEvent -> {
+            Push push = gitEvent.getPush();
+            Map<String, Integer> commitPerDeveloper = push.getMapUserCommit();
+            commitPerDeveloper.forEach(mapCommitPerDeveloper::put);
+        });
+
 
         if (mapCommitPerDeveloper != null && mapCommitPerDeveloper.isEmpty()) {
             return 0.0;
